@@ -1,0 +1,94 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: tourist_agency_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tourist_agency
+      MYSQL_USER: tourist_user
+      MYSQL_PASSWORD: tourist_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Scripts/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
+    networks:
+      - tourist_agency_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Tourist Agency Auth Service
+  auth-service:
+    build:
+      context: ..
+      dockerfile: services/auth/Dockerfile
+    container_name: tourist_agency_auth
+    restart: unless-stopped
+    ports:
+      - "7002:7002"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=tourist_agency;Uid=tourist_user;Pwd=tourist_password;
+      - ASPNETCORE_URLS=http://+:7002
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=TouristAgencyAPI
+      - Jwt__Audience=TouristAgencyUsers
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - tourist_agency_network
+
+  # Tourist Agency API Gateway
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: services/api/Dockerfile
+    container_name: tourist_agency_api_gateway
+    restart: unless-stopped
+    ports:
+      - "7001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=tourist_agency;Uid=tourist_user;Pwd=tourist_password;
+      - ASPNETCORE_URLS=http://+:80
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=TouristAgencyAPI
+      - Jwt__Audience=TouristAgencyUsers
+      - AuthService__BaseUrl=http://auth-service:7002
+    depends_on:
+      mysql:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - tourist_agency_network
+
+  # Tourist Agency UI
+  ui:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: tourist_agency_ui
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://api-gateway:80/api
+      - REACT_APP_AUTH_URL=http://auth-service:7002/api
+    depends_on:
+      - api-gateway
+      - auth-service
+    networks:
+      - tourist_agency_network
+
+volumes:
+  mysql_data:
+
+networks:
+  tourist_agency_network:
+    driver: bridge 

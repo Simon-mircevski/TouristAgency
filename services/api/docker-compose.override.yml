@@ -1,0 +1,30 @@
+services:
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tourist_agency
+      MYSQL_USER: tourist_user
+      MYSQL_PASSWORD: tourist_password
+    ports:
+      - "3307:3306"
+
+  auth-service:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:7002
+    ports:
+      - "7002:7002"
+
+  api-gateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "7001:80"
+
+  ui:
+    environment:
+      - REACT_APP_API_URL=http://localhost:7001/api
+      - REACT_APP_AUTH_URL=http://localhost:7002/api
+    ports:
+      - "3000:80" 

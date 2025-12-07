@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TouristAgencyAPI</name>
+    </assembly>
+    <members>
+        <member name="T:TouristAgencyAPI.Models.Customer">
+            <summary>
+            Represents a customer with personal details and contact information.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.Id">
+            <summary>
+            Unique identifier for the customer.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.FirstName">
+            <summary>
+            Customer's first name.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.LastName">
+            <summary>
+            Customer's last name.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.Email">
+            <summary>
+            Customer's email address (must be unique).
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.Phone">
+            <summary>
+            Customer's phone number.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.Address">
+            <summary>
+            Customer's full address.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.DateOfBirth">
+            <summary>
+            Customer's date of birth.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.CreatedAt">
+            <summary>
+            Date and time when the customer was created.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Customer.UpdatedAt">
+            <summary>
+            Date and time when the customer was last updated.
+            </summary>
+        </member>
+        <member name="T:TouristAgencyAPI.Models.Destination">
+            <summary>
+            Represents a tourist destination with details like name, description, country, city, price, and duration.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.Id">
+            <summary>
+            Unique identifier for the destination.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.Name">
+            <summary>
+            Name of the destination (e.g., "Paris Adventure").
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.Description">
+            <summary>
+            Detailed description of the destination and what it offers.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.Country">
+            <summary>
+            Country where the destination is located.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.City">
+            <summary>
+            City where the destination is located.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.ImageUrl">
+            <summary>
+            Optional URL to an image of the destination.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.Price">
+            <summary>
+            Price of the destination in the local currency.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.Duration">
+            <summary>
+            Duration of the destination experience in days.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.CreatedAt">
+            <summary>
+            Date and time when the destination was created.
+            </summary>
+        </member>
+        <member name="P:TouristAgencyAPI.Models.Destination.UpdatedAt">
+            <summary>
+            Date and time when the destination was last updated.
+            </summary>
+        </member>
+    </members>
+</doc>

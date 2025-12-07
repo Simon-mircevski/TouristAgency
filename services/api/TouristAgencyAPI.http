@@ -1,0 +1,52 @@
+### Tourist Agency API Test Requests
+
+### Get all destinations
+GET https://localhost:7001/api/destinations
+Accept: application/json
+
+### Get destination by ID
+GET https://localhost:7001/api/destinations/1
+Accept: application/json
+
+### Create a new destination
+POST https://localhost:7001/api/destinations
+Content-Type: application/json
+
+{
+  "name": "Barcelona Adventure",
+  "description": "Explore the vibrant city of Barcelona with visits to Sagrada Familia and Park Güell",
+  "country": "Spain",
+  "city": "Barcelona",
+  "imageUrl": "https://example.com/barcelona.jpg",
+  "price": 1400.00,
+  "duration": 4
+}
+
+### Get all customers
+GET https://localhost:7001/api/customers
+Accept: application/json
+
+### Create a new customer
+POST https://localhost:7001/api/customers
+Content-Type: application/json
+
+{
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "email": "alice.johnson@email.com",
+  "phone": "+1234567895",
+  "address": "789 Sunset Blvd, Miami, FL 33101",
+  "dateOfBirth": "1995-12-03"
+}
+
+### Get all guides
+GET https://localhost:7001/api/guides
+Accept: application/json
+
+### Get all tours
+GET https://localhost:7001/api/tours
+Accept: application/json
+
+### Get all bookings
+GET https://localhost:7001/api/bookings
+Accept: application/json

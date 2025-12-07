@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-script
+  namespace: tourist-agency
+data:
+  create_database.sql: |
+    -- Create Tourist Agency Database
+    CREATE DATABASE IF NOT EXISTS tourist_agency;
+    USE tourist_agency;
+
+    -- Create users table
+    CREATE TABLE IF NOT EXISTS users (
+        Id INT AUTO_INCREMENT PRIMARY KEY,
+        FirstName VARCHAR(100) NOT NULL,
+        LastName VARCHAR(100) NOT NULL,
+        Email VARCHAR(255) NOT NULL UNIQUE,
+        PasswordHash VARCHAR(255) NOT NULL,
+        Phone VARCHAR(20),
+        Address VARCHAR(500),
+        DateOfBirth DATE,
+        Role ENUM('Customer', 'Admin', 'Guide') NOT NULL DEFAULT 'Customer',
+        IsActive BOOLEAN NOT NULL DEFAULT TRUE,
+        CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_email (Email),
+        INDEX idx_role (Role),
+        INDEX idx_active (IsActive)
+    );
+
+    -- Create destinations table
+    CREATE TABLE IF NOT EXISTS destinations (
+        Id INT AUTO_INCREMENT PRIMARY KEY,
+        Name VARCHAR(255) NOT NULL,
+        Description TEXT,
+        Country VARCHAR(100) NOT NULL,
+        City VARCHAR(100) NOT NULL,
+        ImageUrl VARCHAR(500),
+        Price DECIMAL(10,2) NOT NULL,
+        Duration INT NOT NULL COMMENT 'Duration in days',
+        CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_country (Country),
+        INDEX idx_city (City),
+        INDEX idx_price (Price)
+    );
+
+    -- Create customers table
+    CREATE TABLE IF NOT EXISTS customers (
+        Id INT AUTO_INCREMENT PRIMARY KEY,
+        FirstName VARCHAR(100) NOT NULL,
+        LastName VARCHAR(100) NOT NULL,
+        Email VARCHAR(255) NOT NULL UNIQUE,
+        Phone VARCHAR(20) NOT NULL,
+        Address TEXT NOT NULL,
+        DateOfBirth DATE NOT NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_email (Email),
+        INDEX idx_name (FirstName, LastName)
+    );
+
+    -- Create guides table
+    CREATE TABLE IF NOT EXISTS guides (
+        Id INT AUTO_INCREMENT PRIMARY KEY,
+        FirstName VARCHAR(100) NOT NULL,
+        LastName VARCHAR(100) NOT NULL,
+        Email VARCHAR(255) NOT NULL UNIQUE,
+        Phone VARCHAR(20) NOT NULL,
+        Specialization VARCHAR(255) NOT NULL,
+        Languages VARCHAR(500) NOT NULL COMMENT 'Comma-separated languages',
+        ExperienceYears INT NOT NULL DEFAULT 0,
+        IsAvailable BOOLEAN NOT NULL DEFAULT TRUE,
+        CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_email (Email),
+        INDEX idx_available (IsAvailable),
+        INDEX idx_specialization (Specialization)
+    );
+
+    -- Create tours table
+    CREATE TABLE IF NOT EXISTS tours (
+        Id INT AUTO_INCREMENT PRIMARY KEY,
+        Name VARCHAR(255) NOT NULL,
+        Description TEXT,
+        DestinationId INT NOT NULL,
+        GuideId INT,
+        StartDate DATETIME NOT NULL,
+        EndDate DATETIME NOT NULL,
+        MaxParticipants INT NOT NULL DEFAULT 20,
+        CurrentParticipants INT NOT NULL DEFAULT 0,
+        Price DECIMAL(10,2) NOT NULL,
+        Status ENUM('Scheduled', 'Active', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Scheduled',
+        CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (DestinationId) REFERENCES destinations(Id) ON DELETE CASCADE,
+        FOREIGN KEY (GuideId) REFERENCES guides(Id) ON DELETE SET NULL,
+        INDEX idx_destination (DestinationId),
+        INDEX idx_guide (GuideId),
+        INDEX idx_status (Status),
+        INDEX idx_dates (StartDate, EndDate),
+        CHECK (EndDate > StartDate),
+        CHECK (CurrentParticipants <= MaxParticipants)
+    );
+
+    -- Create bookings table
+    CREATE TABLE IF NOT EXISTS bookings (
+        Id INT AUTO_INCREMENT PRIMARY KEY,
+        CustomerId INT NOT NULL,
+        TourId INT NOT NULL,
+        BookingDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        TravelDate DATETIME NOT NULL,
+        NumberOfPeople INT NOT NULL DEFAULT 1,
+        TotalAmount DECIMAL(10,2) NOT NULL,
+        Status ENUM('Pending', 'Confirmed', 'Cancelled', 'Completed') NOT NULL DEFAULT 'Pending',
+        SpecialRequests TEXT,
+        CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (CustomerId) REFERENCES customers(Id) ON DELETE CASCADE,
+        FOREIGN KEY (TourId) REFERENCES tours(Id) ON DELETE CASCADE,
+        INDEX idx_customer (CustomerId),
+        INDEX idx_tour (TourId),
+        INDEX idx_status (Status),
+        INDEX idx_travel_date (TravelDate),
+        CHECK (NumberOfPeople > 0),
+        CHECK (TotalAmount > 0)
+    );
+
+    -- Insert sample users (password is 'password123' hashed with BCrypt)
+    INSERT INTO users (FirstName, LastName, Email, PasswordHash, Phone, Address, DateOfBirth, Role) VALUES
+    ('Admin', 'User', 'admin@touristagency.com', '$2a$11$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+1234567890', '123 Admin St, Admin City', '1980-01-01', 'Admin'),
+    ('John', 'Doe', 'john.doe@email.com', '$2a$11$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+1234567890', '123 Main St, New York, NY 10001', '1985-03-15', 'Customer'),
+    ('Maria', 'Garcia', 'maria.garcia@guides.com', '$2a$11$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+1987654321', '456 Guide Ave, Guide City', '1982-05-20', 'Guide');
+
+    -- Insert sample data for destinations
+    INSERT INTO destinations (Name, Description, Country, City, ImageUrl, Price, Duration) VALUES
+    ('Paris Adventure', 'Experience the magic of Paris with visits to the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral.', 'France', 'Paris', 'https://example.com/paris.jpg', 1500.00, 5),
+    ('Rome Historical Tour', 'Discover ancient Rome with visits to the Colosseum, Vatican City, and Roman Forum.', 'Italy', 'Rome', 'https://example.com/rome.jpg', 1200.00, 4),
+    ('Tokyo Modern Experience', 'Explore the modern and traditional aspects of Tokyo, including Shibuya, Asakusa, and Akihabara.', 'Japan', 'Tokyo', 'https://example.com/tokyo.jpg', 2000.00, 6),
+    ('New York City Tour', 'Experience the Big Apple with visits to Times Square, Central Park, and the Statue of Liberty.', 'USA', 'New York', 'https://example.com/nyc.jpg', 1800.00, 5),
+    ('London Royal Tour', 'Visit Buckingham Palace, Tower of London, and the British Museum in this royal experience.', 'UK', 'London', 'https://example.com/london.jpg', 1600.00, 4);
+
+    -- Insert sample data for customers
+    INSERT INTO customers (FirstName, LastName, Email, Phone, Address, DateOfBirth) VALUES
+    ('John', 'Doe', 'john.doe@email.com', '+1234567890', '123 Main St, New York, NY 10001', '1985-03-15'),
+    ('Jane', 'Smith', 'jane.smith@email.com', '+1234567891', '456 Oak Ave, Los Angeles, CA 90210', '1990-07-22'),
+    ('Mike', 'Johnson', 'mike.johnson@email.com', '+1234567892', '789 Pine Rd, Chicago, IL 60601', '1988-11-08'),
+    ('Sarah', 'Williams', 'sarah.williams@email.com', '+1234567893', '321 Elm St, Boston, MA 02101', '1992-04-30'),
+    ('David', 'Brown', 'david.brown@email.com', '+1234567894', '654 Maple Dr, Seattle, WA 98101', '1987-09-12');
+
+    -- Insert sample data for guides
+    INSERT INTO guides (FirstName, LastName, Email, Phone, Specialization, Languages, ExperienceYears, IsAvailable) VALUES
+    ('Maria', 'Garcia', 'maria.garcia@guides.com', '+1987654321', 'European History', 'English, Spanish, French', 8, TRUE),
+    ('Ahmed', 'Hassan', 'ahmed.hassan@guides.com', '+1987654322', 'Middle Eastern Culture', 'English, Arabic, French', 5, TRUE),
+    ('Yuki', 'Tanaka', 'yuki.tanaka@guides.com', '+1987654323', 'Japanese Culture', 'English, Japanese, Chinese', 10, TRUE),
+    ('Robert', 'Wilson', 'robert.wilson@guides.com', '+1987654324', 'American History', 'English, Spanish', 6, TRUE),
+    ('Emma', 'Thompson', 'emma.thompson@guides.com', '+1987654325', 'British History', 'English, French, German', 7, TRUE);
+
+    -- Insert sample data for tours
+    INSERT INTO tours (Name, Description, DestinationId, GuideId, StartDate, EndDate, MaxParticipants, CurrentParticipants, Price, Status) VALUES
+    ('Paris Spring Adventure', 'Experience Paris in spring with cherry blossoms and mild weather.', 1, 1, '2024-04-15 09:00:00', '2024-04-20 18:00:00', 15, 8, 1500.00, 'Scheduled'),
+    ('Rome Summer Tour', 'Discover ancient Rome during the warm summer months.', 2, 2, '2024-07-10 08:00:00', '2024-07-14 17:00:00', 20, 12, 1200.00, 'Scheduled'),
+    ('Tokyo Autumn Experience', 'Explore Tokyo during the beautiful autumn season.', 3, 3, '2024-10-20 10:00:00', '2024-10-26 19:00:00', 12, 6, 2000.00, 'Scheduled'),
+    ('NYC Winter Tour', 'Experience New York City during the holiday season.', 4, 4, '2024-12-15 09:00:00', '2024-12-20 18:00:00', 18, 10, 1800.00, 'Scheduled'),
+    ('London Royal Experience', 'Visit London and experience royal traditions.', 5, 5, '2024-06-05 08:00:00', '2024-06-09 17:00:00', 16, 14, 1600.00, 'Scheduled');
+
+    -- Insert sample data for bookings
+    INSERT INTO bookings (CustomerId, TourId, TravelDate, NumberOfPeople, TotalAmount, Status, SpecialRequests) VALUES
+    (1, 1, '2024-04-15 09:00:00', 2, 3000.00, 'Confirmed', 'Vegetarian meals preferred'),
+    (2, 2, '2024-07-10 08:00:00', 1, 1200.00, 'Confirmed', 'Wheelchair accessible accommodation needed'),
+    (3, 3, '2024-10-20 10:00:00', 3, 6000.00, 'Pending', 'Private guide for photography tour'),
+    (4, 4, '2024-12-15 09:00:00', 2, 3600.00, 'Confirmed', 'Hotel near Times Square'),
+    (5, 5, '2024-06-05 08:00:00', 1, 1600.00, 'Confirmed', 'Afternoon tea experience included');

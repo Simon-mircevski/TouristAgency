@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "3n7lChGUhgz1WPlsMNW/FUOe8wFUjppB60rXXyYGKek=",
+  "Source": "TouristAgencyAPI",
+  "BasePath": "_content/TouristAgencyAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
