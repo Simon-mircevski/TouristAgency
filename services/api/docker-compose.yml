@@ -13,7 +13,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./Scripts/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
+      - ./Scripts/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql:ro
     networks:
       - tourist_agency_network
     healthcheck:
@@ -24,7 +24,7 @@ services:
   # Tourist Agency Auth Service
   auth-service:
     build:
-      context: ..
+      context: ../..
       dockerfile: services/auth/Dockerfile
     container_name: tourist_agency_auth
     restart: unless-stopped
@@ -46,7 +46,7 @@ services:
   # Tourist Agency API Gateway
   api-gateway:
     build:
-      context: ..
+      context: ../..
       dockerfile: services/api/Dockerfile
     container_name: tourist_agency_api_gateway
     restart: unless-stopped
@@ -71,7 +71,7 @@ services:
   # Tourist Agency UI
   ui:
     build:
-      context: ../frontend
+      context: ../../frontend
       dockerfile: Dockerfile
     container_name: tourist_agency_ui
     restart: unless-stopped

@@ -8,17 +8,17 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["TouristAgencyAuth/TouristAgencyAuth/TouristAgencyAuth.Docker.csproj", "TouristAgencyAuth/TouristAgencyAuth.csproj"]
-COPY ["TouristAgencyShared/TouristAgencyShared/TouristAgencyShared.csproj", "TouristAgencyShared/"]
+COPY ["services/auth/TouristAgencyAuth.Docker.csproj", "services/auth/TouristAgencyAuth.csproj"]
+COPY ["services/shared/TouristAgencyShared.csproj", "services/shared/"]
 
 # Restore dependencies
-RUN dotnet restore "TouristAgencyAuth/TouristAgencyAuth.csproj"
+RUN dotnet restore "services/auth/TouristAgencyAuth.csproj"
 
 # Copy the rest of the source code
 COPY . .
 
 # Publish the application
-WORKDIR "/src/TouristAgencyAuth"
+WORKDIR "/src/services/auth"
 RUN dotnet publish "TouristAgencyAuth.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Create the final runtime image

@@ -8,15 +8,16 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy the project files and restore dependencies
-COPY ["TouristAgencyAPI/TouristAgencyAPI.Docker.csproj", "TouristAgencyAPI/TouristAgencyAPI.csproj"]
-COPY ["TouristAgencyShared/TouristAgencyShared/TouristAgencyShared.csproj", "TouristAgencyShared/"]
-RUN dotnet restore "TouristAgencyAPI/TouristAgencyAPI.csproj"
+COPY ["services/api/TouristAgencyAPI.Docker.csproj", "services/api/TouristAgencyAPI.csproj"]
+COPY ["services/shared/TouristAgencyShared.csproj", "services/shared/"]
+RUN dotnet restore "services/api/TouristAgencyAPI.csproj"
 
 # Copy the rest of the source code
 COPY . .
 
 # Publish the application
-RUN dotnet publish "TouristAgencyAPI/TouristAgencyAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
+WORKDIR "/src/services/api"
+RUN dotnet publish "TouristAgencyAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Build the final runtime image
 FROM base AS final
